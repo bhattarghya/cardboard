@@ -1,125 +1,38 @@
-
 '''
-##Incomplete##
+Submitted by : Arghyadeep Bhattacharjee
 
-submitted by: Arghyadeep Bhattacharjee
-
-Algorithm   : First I tried to check all the exposed(not under any other rectangle area)corners of all the rectangles
-              Then I tried to find all the intersections of the rectangles and then filter all the exposed intersections.
-              Finally, I added both these lists and then removed duplicates (converted to set), and then took the alternate
-              index values which signifies change of outline.
-              The code has some bugs, I am working to get to them.
-              "outline(A)" is the main function
+Algorithm : First I created the dictionary of all the exposed outline points. Then
+            I looked for change of y-axis value (height)in the sorted dictionary. The
+            points of height change are collected in a list and returned.
 '''
 
 
 
-##Finding all corners##
-
-def find_corners(P):                
-
-    result=[(P[0],0),(P[0],P[2]),(P[1],P[2]),(P[1],0)]
-    return result
-    
 
 
-##Function to check if a given point is exposed (in outline) or not.
+def cardboard(rect_cord):
 
-def exposed(c,A,pos):
-    exp=True
-    for i in A:
-      if pos=='l':  
-        if i[0][0] < c[0] and i[3][0] < c[0] : continue
-        if i[0][0] > c[0] and i[3][0] > c[0] : continue
-        if i[2][0] == c[0] :
-            if i[2][1] == c[1] : return False
-            else: continue
-        elif i[1][0] == c[0]:
-            if i[1][1] > c[1] : return False
-            else: continue
-        elif c[0] > i[0][0] and c[0] < i[2][0] :
-            if c[1] > i[1][1]: continue
-            else: return False
-      if pos=='r':
-        if i[0][0] < c[0] and i[3][0] < c[0] : continue
-        if i[0][0] > c[0] and i[3][0] > c[0] : continue
-        if i[2][0] == c[0]:
-            if i[2][1] > c[1] : return False
-            else: continue
-        elif i[1][0] == c[0]:
-            if c[1]==i[1][1] : return False
-            else : continue
-        elif c[0] >i[0][0] and c[0] < i[2][0]:
-            if c[1] > i[1][1] : continue
-            else: return False
+    if rect_cord==[] :
+        print("List empty")
+        return
+    result=[]
+    cord_dict={}
 
-      if pos=='g':
-          if i[0][0] < c[0] and i[3][0] < c[0] : continue
-          if i[0][0] > c[0] and i[3][0] > c[0] : continue
-          if i[0][0] < c[0] and i[3][0] > c[0]:
-              if i[1][1] > c[1]: return False
-              else: continue              
-          
-    return exp        
-
-
-### Main function
-def outline(A):
-    exposed_list=[]
-    k=[]
-    for i in A:
-        k.append(find_corners(i))
-
-    count=0   ##
-    for i in k:
-       for j in i:
-           if j== i[0] or j==i[1] : pos='l'
-           else: pos='r'
-           if exposed(j,k[:count]+k[count+1:],pos): exposed_list.append(j)
-       count+=1
-    
-
-
-    inter_list=[]
-    inter_exposed=[]
-    count=-1 ##
-    for i in k:
-        count+=1
-        for j in k[count+1:]:
-            if j[1][0] < i[1][0] and i[1][0] < j[2][0] :  #intersect True
-                 if  j[1][1] < i[1][1]: inter_list.append((i[0][1],j[1][1]))
-                 if  j[1][1] > i[1][1]: inter_list.append((j[2][0],i[1][1]))
-            if j[0][0] > i[0][0] and j[3][0] < i[3][0] : #inside
-                if j[1][1] > i[1][1]:
-                    inter_list.append((j[0][0],i[1][1]))
-                    inter_list.append((j[3][0],i[1][1]))
-            if j[0][0] < i[2][0] and j[3][0] > i[2][0] :
-                if j[1][1] < i[2][1]: inter_list.append((i[2][0],j[1][1]))
-                if j[1][1] > i[2][1]: inter_list.append((j[0][0],i[1][1]))
-       
-
-    for i in inter_list :
-        if exposed(i,k,'g') : inter_exposed.append(i)
-
-    
-    last_set= list(set(inter_exposed + exposed_list))
-    
-    final_set=[]
-    for i in range(0,len(last_set),2):
-        final_set.append(last_set[i])
-   
-    return sorted(final_set)
-    
-    
-                    
-                
+    for i in rect_cord:
+        count=0
+        for j in range(i[0],i[1]):
+            
+            cord_dict[j]=max(i[2],cord_dict.get(j,float('-inf')))
+        cord_dict[i[1]]=max(0,cord_dict.get(i[1],float('-inf')))
         
+    #print(cord_dict)
+    y=None
 
+    for i in sorted(cord_dict):
+        if cord_dict[i] != y :
+            y=cord_dict[i]
+            result.append((i,y))
 
-
-
-
-
-
-
-           
+    return result        
+    
+       
